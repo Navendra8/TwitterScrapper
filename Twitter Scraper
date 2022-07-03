@@ -1,0 +1,63 @@
+import pandas as pd
+import numpy as np
+import selenium
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
+from time import sleep
+from collections import defaultdict
+import csv
+import pickle
+import snscrape.modules.twitter as sntwitter
+import warnings 
+warnings.filterwarnings("ignore")
+
+
+
+
+# Import list of individual terms
+ind_terms_file = open("XYZ.txt", 'r')
+ind_terms_list = ind_terms_file.readline().split(',')
+ind_terms_query = ' OR '.join(ind_terms_list)
+ind_terms_query
+
+
+# Import list of individual handles
+
+handles_file = open('ABC.txt', 'r',encoding='utf-8-sig')
+handles_list = handles_file.readline().split(',')
+handles_list = [x.lower() for x in handles_list ]
+handles_list = handles_list[11:]
+handles_list
+
+
+#Creating Function for Webscrapping
+
+defDict = defaultdict(lambda: defaultdict(list))
+def getTweets(twitterNames, since ):
+    for index, name in enumerate(twitterNames):
+        print(name)
+        for i,tweet in enumerate(sntwitter.TwitterSearchScraper(f'({ind_terms_query}) ({name}) since:{since}').get_items()):
+            defDict[name+'_'+str(i)] = [name, tweet.content, tweet.date, tweet.username,tweet.likeCount,tweet.retweetCount]
+            data = pd.DataFrame([(k, v[0], v[1], v[2], v[3],v[4],v[5]) for k, v in defDict.items()], #Creating Data frame 
+                      columns=['key', 'handle', 'content', 'date', 'username',"likes","retweet"])
+            data.to_csv(f"C:/Users/{name}.csv") #Saving Data Frame to CSV
+
+    return data
+    
+    
+    
+#Calling Function for Webscrapping 
+
+ 
+from datetime import datetime
+start_time = datetime.now()
+
+df = getTweets(handles_list, '2021-06-29')
+df
+
+end_time = datetime.now()
+print('Duration: {}'.format(end_time - start_time))
