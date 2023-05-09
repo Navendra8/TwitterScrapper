@@ -1,4 +1,4 @@
-                                                                                                         README:
+                    README:
 
 This script scrapes tweets for given Twitter handles and saves them to separate CSV files. The Twitter handles and individual terms to search for are read from files "ABC.txt" and "XYZ.txt" respectively.
 
